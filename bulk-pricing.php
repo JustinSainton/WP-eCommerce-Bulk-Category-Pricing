@@ -140,7 +140,7 @@ class WPEC_Bulk_Category_Pricing {
 
 			wpsc_update_categorymeta( $category_id, 'use_bulk_pricing'      , absint( $use_bulk_pricing ) );
 			wpsc_update_categorymeta( $category_id, 'bulk_pricing_threshold', absint( $bulk_pricing_threshold ) );
-			wpsc_update_categorymeta( $category_id, 'bulk_pricing_discount ', absint( $bulk_pricing_discount ) );
+			wpsc_update_categorymeta( $category_id, 'bulk_pricing_discount ', floatval( $bulk_pricing_discount ) );
 
 		}
 
