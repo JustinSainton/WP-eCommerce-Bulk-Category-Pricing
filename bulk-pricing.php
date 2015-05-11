@@ -71,7 +71,7 @@ class WPEC_Bulk_Category_Pricing {
 
 							<tr>
 								<td>
-										<?php _e( 'Bulk pricing discount.  Specify, in specific currency (e.g. 1.99) what the discount per product should be.', 'wpsc-bulk-category' ); ?>
+										<?php _e( 'Bulk pricing discount.  Specify, in specific currency (e.g. 1.99) what the discount per cart should be.', 'wpsc-bulk-category' ); ?>
 								</td>
 								<td>
 									 <input type="text" size="6" value='<?php echo $bulk_pricing_discount; ?>' name="bulk_pricing_discount" />
@@ -120,7 +120,7 @@ class WPEC_Bulk_Category_Pricing {
 
 		<tr class="form-field">
 			<th scope="row" valign="top">
-		<label><?php _e( 'Bulk pricing discount.  Specify, in specific currency (e.g. 1.99) what the discount per product should be.', 'wpsc-bulk-category' ); ?></label>
+		<label><?php _e( 'Bulk pricing discount.  Specify, in specific currency (e.g. 1.99) what the discount per cart should be.', 'wpsc-bulk-category' ); ?></label>
 			</th>
 			<td>
 				<input type="text" class="wpsc_cat_image_size" size="6" value='<?php echo $bulk_pricing_discount; ?>' name="bulk_pricing_discount" />
@@ -134,7 +134,7 @@ class WPEC_Bulk_Category_Pricing {
 
 	public function category_forms_save( $category_id, $tt_id ) {
 
-		if( ! empty( $_POST ) ) {
+		if ( ! empty( $_POST ) ) {
 
 			extract( $_POST );
 
@@ -199,6 +199,11 @@ class WPEC_Bulk_Category_Pricing {
 	}
 
 	public function modify_price( $price, $product_id ) {
+		global $wpsc_cart;
+
+		if ( count( $wpsc_cart->cart_items ) < 1 ) {
+			return $price;
+		}
 
 		$product = get_post( $product_id );
 
@@ -218,12 +223,17 @@ class WPEC_Bulk_Category_Pricing {
 
 		//Loop through and subtract discount from eligible items
 		foreach ( $object_terms as $term ) {
-		  $price = $price - $eligible_products[ $term->term_id ]['discount'];
+
+			if ( ! isset( $eligible_products[ $term->term_id ] ) ) {
+				continue;
+			}
+
+			$price = $price - ( $eligible_products[ $term->term_id ]['discount'] / array_sum( $eligible_products[ $term->term_id ]['quantity'] ) );
 		}
 
-	   unset( $eligible_products );
+		unset( $eligible_products );
 
-	   return $price;
+		return $price;
 	}
 
 
