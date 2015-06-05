@@ -190,7 +190,8 @@ class WPEC_Bulk_Category_Pricing {
 			if ( array_sum( $product['quantity'] ) < $bulk_price_threshold ) {
 				unset( $eligible_products[ $cat ] );
 			} else {
-				$product['discount'] = wpsc_get_categorymeta( $cat, 'bulk_pricing_discount' );
+				$product['discount']  = wpsc_get_categorymeta( $cat, 'bulk_pricing_discount' );
+				$product['threshold'] = $bulk_price_threshold;
 			}
 
 		}
@@ -228,7 +229,12 @@ class WPEC_Bulk_Category_Pricing {
 				continue;
 			}
 
-			$price = $price - ( $eligible_products[ $term->term_id ]['discount'] / array_sum( $eligible_products[ $term->term_id ]['quantity'] ) );
+			$total_products = array_sum( $eligible_products[ $term->term_id ]['quantity'] );
+
+			$price = $price - (
+				$eligible_products[ $term->term_id ]['discount'] /
+				$total_products * ( floor( $total_products / $eligible_products[ $term->term_id ]['threshold']  ) )
+			);
 		}
 
 		unset( $eligible_products );
